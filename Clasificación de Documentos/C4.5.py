@@ -22,4 +22,17 @@ class Grafica:
 		pass
 
 	pass
-	
+
+
+def calcular_entropia(conjunto_ejemplos, atributo_objetivo):
+	entropia = 0
+	clases_objetivo = []
+	for ejemplo in conjunto_ejemplos:
+		clases_objetivo.append(ejemplo.atr_val[atributo_objetivo])
+	for valor in set(clases_objetivo):
+		proba_i = float(clases_objetivo.count(valor))/len(clases_objetivo)
+		proba_i -= proba_i * math.log(proba_i, 2)		
+	return entropia
+
+if __name__ == '__main__':
+	pass
