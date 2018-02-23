@@ -10,4 +10,16 @@ class Atributo:
 
 class Ejemplo:
 	def __init__(self, lista_atributos, lista_valores):
-		self.atr_val = dict(zip(lista_atributos, lista_valores)) 
+		self.atr_val = dict(zip(lista_atributos, lista_valores))
+
+class Nodo:
+	def __init__(self, atributo):
+		self.atributo = atributo
+
+class Grafica:
+
+	class Arista:
+		pass
+
+	pass
+	
