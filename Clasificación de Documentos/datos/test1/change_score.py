@@ -24,7 +24,7 @@ def change_score():
             elif num == 10:
                 num = 1
 
-            line_aux = str(num) + ',"' + line[len(a[0])+1:len(line)-1].replace('"', '') + '"\n'
+            line_aux = '"' + line[len(a[0])+1:len(line)-1].replace('"', '') + '",' + str(num) + '\n'
             nuevo.write(line_aux)
 
 	original.close()
