@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Scraping
 from bs4 import BeautifulSoup
 import urllib.request as urllib2
@@ -11,7 +12,7 @@ import time
 
 def getPageSoup(url):
     """
-        Gets the page html and returns it with BeautifulSoup
+        Obtiene el html de una página y lo regresa con BeautifulSoup
     """
 
     request = urllib2.Request(url)
@@ -27,8 +28,9 @@ def getPageSoup(url):
 
 def getReview(review_box):
     """
-        Gets review from a review box of with BeatifulSoup
+        Obtiene una crítica de una caja de crítica de BeautifulSoup
     """
+
     try:
         # Score
         score_box = review_box.find(
@@ -63,8 +65,8 @@ def getReview(review_box):
 
 def getPageReviews(url):
     """
-        Gets all reviews in the page's url.
-        The page's url must begin with:
+        Obtener todas la criticas en una url de una página.
+        El url de la página debe de empezar con:
             'http://www.metacritic.com/critic/mick-lasalle?page='
     """
     
@@ -72,43 +74,47 @@ def getPageReviews(url):
 
     review_boxes = soup.findAll('li', attrs={'class': 'review'})
     # A review is a tuple with score and review
-    reviews = []
     for review_box in review_boxes:
         try:
-            reviews.append(getReview(review_box))
+            yield getReview(review_box)
             # To avoid so multiple requests
             time.sleep(randint(2,5))
         except:
             pass
-    return reviews
 
 
 def getAllReviews():
     """
-        Gets all Mick LaSalle reviews in Metacritic
+        Obtener todas las críticas de Mick LaSalle en Metacritic
     """
+
     url_base = 'http://www.metacritic.com/critic/mick-lasalle?'
     url_base += 'filter=movies&num_items=100&sort_options=date&page='
-    reviews = []
     for page in range(28):
         print('Page: ' + str(page))
-        reviews += (getPageReviews(url_base + str(page)))
+        for review in getPageReviews(url_base + str(page)):
+            yield review
 
-    return reviews
 
-
-def appendReviewsInfile(file_path, reviews):
+def appendReviewsInfile(file_path):
     """
-        Append Reviews in file
+        Agregar las criticas al final de un archivo
     """
 
-    open(file_path, 'w').close
+    # Para crear el archivo
+    head = ['@relation criticas\n\n@attribute calificacion numeric\n@attribute critica string\n\n@data\n\n']
+
     with open(file_path, "a") as myfile:
-        for review in reviews:
-            myfile.write(str(review[0]) + '////' + review[1] + '\n')
+        writer = csv.writer(myfile)
+        writer.writerow(head)
+        for review in getAllReviews():
+            try:
+                writer.writerow([str(review[0]), review[1]])
+                print("Escrito en archivo")
+            except Exception as e:
+                print(e)
 
-filename = 'reviews.txt'
 
-reviews = getAllReviews()
-appendReviewsInfile(filename, reviews)
+filename = 'criticas.arff'
+appendReviewsInfile(filename)
 
