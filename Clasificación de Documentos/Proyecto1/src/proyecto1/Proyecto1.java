@@ -25,8 +25,7 @@ public class Proyecto1 {
      * @return 
      */
     public static StringToWordVector configureFilter(StringToWordVector filter, boolean lowercase, boolean frequency, 
-                                         String stopwords, boolean idtfT, int wordsToKeep,
-                                         String delimiters) {
+                                         String stopwords, boolean idtfT, int wordsToKeep) {
             filter.setIDFTransform(idtfT);
             filter.setTFTransform(false);
             filter.setAttributeIndices("first-last");
@@ -38,7 +37,7 @@ public class Proyecto1 {
             filter.setLowerCaseTokens(lowercase);
             filter.setOutputWordCounts(frequency);
             WordTokenizer tokenizer = new WordTokenizer();
-            tokenizer.setDelimiters(delimiters);
+            tokenizer.setDelimiters(".,;:'\"\\()!?-_	 +@&#$¬/");
             filter.setTokenizer(tokenizer);
             if (!stopwords.isEmpty()){
                 try {
@@ -59,8 +58,7 @@ public class Proyecto1 {
      * @param args 
      */
      public static void applyAlgorithm(boolean J48, String file, boolean lowercase, 
-                                boolean frequency, String stopwords, boolean idtfT, int wordsToKeep,
-                                String delimiters, boolean pruning, double confidenceFactor, double percentageSplit) {
+                                boolean frequency, String stopwords, boolean idtfT, int wordsToKeep, boolean pruning, float confidenceFactor, double percentageSplit) {
         try{
             StringToWordVector filter = new StringToWordVector();
             J48 tree = new J48();
@@ -69,10 +67,13 @@ public class Proyecto1 {
                 ArrayList<String> options = new ArrayList<>();
                 if(!pruning)
                     options.add("-U");
-                options.add("-M 2");
+                tree.setConfidenceFactor(confidenceFactor);
+                tree.setMinNumObj(2);
+                //options.add("-C0.25");         // confidence threshold for pruning. (Default: 0.25)
+		//options.add("-M 2");            // minimum number of instances per leaf. (Default: 2)
                 tree.setOptions(options.toArray(new String[options.size()]));
             }
-            filter = configureFilter(filter, lowercase, frequency, stopwords, idtfT, wordsToKeep, delimiters);
+            filter = configureFilter(filter, lowercase, frequency, stopwords, idtfT, wordsToKeep);
             //training data
             Instances train = new Instances(new BufferedReader(new FileReader(file)));
             int lastIndex = train.numAttributes() - 1;
@@ -135,25 +136,23 @@ public class Proyecto1 {
             idfT = (id.equals("Sí") || id.equals("Si")) ? true : false;
             System.out.print("Número de palabras a conservar: ");
             int wordsToKeep = Integer.parseInt(reader.readLine());
-            System.out.print("Delimitadores para el filtro: ");
-            String delimiters = reader.readLine();
             if(tipoAlgoritmo == 1) {
                 System.out.println("J48:\n");
                 ///
                 System.out.println("Usar poda (Sí o No): ");
                 boolean poda = (reader.readLine().equals("Sí") || reader.readLine().equals("Si")) ? true : false;
                 System.out.println("Confidence Factor: ");
-                double cf = Double.parseDouble(reader.readLine());
+                float cf = Float.parseFloat(reader.readLine());
                 System.out.println("Porcentaje de Split del conjunto (0.0 - 1.00): ");
                 double porcentaje = Double.parseDouble(reader.readLine());
-                applyAlgorithm(true, file, lowercase, frequency, stopWordsFile, idfT, wordsToKeep, delimiters, poda, cf, porcentaje);
+                applyAlgorithm(true, file, lowercase, frequency, stopWordsFile, idfT, wordsToKeep, poda, cf, porcentaje);
                 ///
             } 
             else {
                 System.out.println("Naive Bayes:\n");
                 System.out.println("Porcentaje de Split del conjunto (0.0 - 1.00): ");
                 double porcentaje = Double.parseDouble(reader.readLine());
-                applyAlgorithm(false,file, lowercase, frequency, stopWordsFile, idfT, wordsToKeep, ".,;:'\\\"\\\\()!?-_	 +@&#$¬/", false, 0.00, porcentaje);
+                applyAlgorithm(false,file, lowercase, frequency, stopWordsFile, idfT, wordsToKeep, false, 0.00f, porcentaje);
             }
         } catch(Exception e) {
             System.out.println(e);
