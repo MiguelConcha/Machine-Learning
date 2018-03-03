@@ -21,12 +21,19 @@ public class Proyecto1 {
 
     /**
      * Se configura un filtro con los argumentos dados.
-     * @param filter
-     * @return 
+     * @param filter El filtro que será configurado.
+     * @param lowercase Si se consideran o no iguales las minúsuculas y mayúsculas.
+     * @param frequency Booleano para saber si tomamos en cuanta la frecuencia.
+     * @param stopwords Un string que se refiere a la ruta del archivo de stopwords en caso 
+     * de quererlo.
+     * @boolean idtfT Booleano para saber si consideramos la importancia de cada palabra en el texto
+     * a partir de una ponderación de las veces que aparece y el número total de instancias.
+     * @boolean wordsToKeep El número de palabras con el que nos quedaremos.
+     * @return El filtro configurado con los argumentos dados.
      */
     public static StringToWordVector configureFilter(StringToWordVector filter, boolean lowercase, boolean frequency, 
                                          String stopwords, boolean idtfT, int wordsToKeep) {
-            filter.setIDFTransform(idtfT);
+            filter.setIDFTransform(idtfT);                            //Colocamos la congfiguración en el filtro pasado como argumento.
             filter.setTFTransform(false);
             filter.setAttributeIndices("first-last");
             filter.setDoNotCheckCapabilities(false);
@@ -37,9 +44,9 @@ public class Proyecto1 {
             filter.setLowerCaseTokens(lowercase);
             filter.setOutputWordCounts(frequency);
             WordTokenizer tokenizer = new WordTokenizer();
-            tokenizer.setDelimiters(".,;:'\"\\()!?-_	 +@&#$¬/");
-            filter.setTokenizer(tokenizer);
-            if (!stopwords.isEmpty()){
+            tokenizer.setDelimiters(".,;:'\"\\()!?-_	 +@&#$¬/");   //El tokenizador será fijo para evitar problemas.
+            filter.setTokenizer(tokenizer);                           //En caso de existir el archivo de stopwords:
+            if (!stopwords.isEmpty()){                                //Lo tratamos de arbir y lo asociamos al filtro.          
                 try {
                     File stopwordsFile = new File(stopwords);
                     WordsFromFile handler = new WordsFromFile();
@@ -50,53 +57,60 @@ public class Proyecto1 {
                     System.out.println("No se encontro el archivo de stop words");
                 }
             }
-        return filter;
+        return filter;                                                //Se devuelve el filtro ya configurado.
     }
     
     /**
-     * Se ejecuta el algoritmo Naive Bayes.
-     * @param args 
+     * Se ejecuta J48 o Naive Bayes.
+     * A partir de los argumentos dados es que se configrua con el otro método el filtro
+     * de tipo StringToWordsVector que es creado aquí. Luego, se parte el conjunto en el porcentaje dado,
+     * se hace la prueba y se evalúa el modelo comparando con los otros resultados,
+     * @param J48 True si usaremos este árbol de decisión y false para usar bayes ingenuo.
+     * @param file El String que se refiere a la ruta en donde tenemos el archivo .arff con los ejemplares a
+     * clasificar.
+     * @param lowercase Nos dice si queremos que tome igual mayúsuculas que minúsculas.
+     * @param frequency Booleano para saber si tomamos en cuanta la frecuencia.
+     * @param stopwords Un string que se refiere a la ruta del archivo de stopwords en caso 
+     * de quererlo.
+     * @boolean idtfT Booleano para saber si consideramos la importancia de cada palabra en el texto
+     * a partir de una ponderación de las veces que aparece y el número total de instancias.
+     * @boolean wordsToKeep El número de palabras con el que nos quedaremos.
+     * @boolean pruning True si queremos usar poda o false en otro caso.
+     * @boolean El factor del árbol.
+     * @double percentageSplit El porcentaje en que dividiremos al conjunto de ejemplares en prueba y entrenamiento.
      */
      public static void applyAlgorithm(boolean J48, String file, boolean lowercase, 
                                 boolean frequency, String stopwords, boolean idtfT, int wordsToKeep, boolean pruning, float confidenceFactor, double percentageSplit) {
         try{
-            StringToWordVector filter = new StringToWordVector();
-            J48 tree = new J48();
+            StringToWordVector filter = new StringToWordVector();       //Creando el filtro y las intancias de los algoritmos e inicializando.
+            J48 tree = new J48();                               
             NaiveBayes naive = new NaiveBayes();
-            if(J48){  
+            if(J48){                                                    //Caso para J48:                    
                 ArrayList<String> options = new ArrayList<>();
                 if(!pruning)
-                    options.add("-U");
-                tree.setConfidenceFactor(confidenceFactor);
+                    options.add("-U");                                  //Opción para hacer poda.
+                tree.setConfidenceFactor(confidenceFactor);             //Establecemos el confidence factor.
                 tree.setMinNumObj(2);
-                //options.add("-C0.25");         // confidence threshold for pruning. (Default: 0.25)
-		//options.add("-M 2");            // minimum number of instances per leaf. (Default: 2)
-                tree.setOptions(options.toArray(new String[options.size()]));
+                tree.setOptions(options.toArray(new String[options.size()]));  //Configurando el algoritmo con las opciones.
             }
-            filter = configureFilter(filter, lowercase, frequency, stopwords, idtfT, wordsToKeep);
-            //training data
+            filter = configureFilter(filter, lowercase, frequency, stopwords, idtfT, wordsToKeep); //Se personaliza el filtro.
+            // Datos de entrenamiento.
             Instances train = new Instances(new BufferedReader(new FileReader(file)));
             int lastIndex = train.numAttributes() - 1;
-            train.setClassIndex(lastIndex);
+            train.setClassIndex(lastIndex);                                           //Estableciendo la clase objetivo (la última).
             filter.setInputFormat(train);
-            train = Filter.useFilter(train, filter);
-            //testing data
-            
+            train = Filter.useFilter(train, filter);                                  //Usando el filtro en la instancia.
+            //Datos de prueba.
             train.randomize(new java.util.Random(0));
-            int trainSize = (int) Math.round(train.numInstances() * percentageSplit);
+            int trainSize = (int) Math.round(train.numInstances() * percentageSplit);  //Sacando la cantidad en que debemos partir el conjunto.
             int testSize = train.numInstances() - trainSize;
-            Instances uno = new Instances(train, 0, trainSize);
+            Instances uno = new Instances(train, 0, trainSize);                        //Dividiendo los ejemplares.
             Instances dos = new Instances(train, trainSize, testSize);
-            
-            //Instances test = new Instances(new BufferedReader(new FileReader(testing_file)));
-            //test.setClassIndex(lastIndex);
-            //filter.setInputFormat(test);
-            //test = Filter.useFilter(test, filter);
-            if(J48) tree.buildClassifier(uno);
+            if(J48) tree.buildClassifier(uno);                                         //Creamos el clasificador para el algoritmo según sea el caso.
             else naive.buildClassifier(uno);
             Evaluation eval = new Evaluation(uno);
             if(J48){
-                eval.evaluateModel(tree,dos);
+                eval.evaluateModel(tree,dos);                                          //Evaluamos el modelo con el conjunto de prueba.
                 System.out.println(eval.toSummaryString("\nSummary\n======\n", false));
                 System.out.println(eval.toClassDetailsString("\nClass Details\n======\n"));
                 System.out.println(eval.toMatrixString("\nConfusion Matrix: false positives and false negatives\n======\n"));	
@@ -109,14 +123,16 @@ public class Proyecto1 {
             System.out.println(e);
         }
     }
-     
+    
+     /**
+      * Se solicita poco a poco al usuario la configuración del algoritmo.
+      * @param args Los argumentos de línea de comandos.
+      */
     public static void main(String[] args) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try{
             System.out.print("Ruta al archivo con extensión <<.arff>>: ");
             String file = reader.readLine();
-            //System.out.print("Ruta al archivo con extensión <<.arff>> de prueba: ");
-            //String test_file = reader.readLine();
             System.out.println("Crearemos el filtro (StringToWordsVector personalizado)");
             System.out.println("Algoritmo a utilizar:\n[1] J48\n[2] Bayes Ingenuo");
             int tipoAlgoritmo = Integer.parseInt(reader.readLine());
@@ -138,7 +154,6 @@ public class Proyecto1 {
             int wordsToKeep = Integer.parseInt(reader.readLine());
             if(tipoAlgoritmo == 1) {
                 System.out.println("J48:\n");
-                ///
                 System.out.println("Usar poda (Sí o No): ");
                 boolean poda = (reader.readLine().equals("Sí") || reader.readLine().equals("Si")) ? true : false;
                 System.out.println("Confidence Factor: ");
@@ -146,7 +161,6 @@ public class Proyecto1 {
                 System.out.println("Porcentaje de Split del conjunto (0.0 - 1.00): ");
                 double porcentaje = Double.parseDouble(reader.readLine());
                 applyAlgorithm(true, file, lowercase, frequency, stopWordsFile, idfT, wordsToKeep, poda, cf, porcentaje);
-                ///
             } 
             else {
                 System.out.println("Naive Bayes:\n");
