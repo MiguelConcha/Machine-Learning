@@ -1,0 +1,2 @@
+"0","# Gráfica de acuerdo a la etiqueta de clase correcta (la original)."
+"0","plot(Data[c(""widthOfKernel"", ""lengthOfKernel"")], xlab = ""Ancho del núcleo"", ylab = ""Longitud del núcleo"", col = Data$seedType)"

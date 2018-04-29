@@ -1,0 +1,2 @@
+"0","# Gráfica de acuerdo al agrupamiento por clusters."
+"0","plot(Data[c(""area"", ""perimeter"")], xlab = ""Área"", ylab = ""Perímetro"", col = resultados$cluster)"

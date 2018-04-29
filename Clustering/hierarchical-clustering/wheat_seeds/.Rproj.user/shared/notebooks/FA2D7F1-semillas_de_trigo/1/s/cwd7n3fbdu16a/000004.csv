@@ -1,0 +1,2 @@
+"0","# Gráfica de acuerdo al agrupamiento por clusters."
+"0","plot(Data[c(""widthOfKernel"", ""lengthOfKernel"")], xlab = ""Ancho del núcleo"", ylab = ""Longitud del núcleo"", col = resultados$cluster)"

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1525021551728.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1926069811",
+    "id" : "F9D9CF6",
+    "lastKnownWriteTime" : 1525026295,
+    "last_content_update" : 1525026295,
+    "path" : "~/Proyecto_3_ML/k-means/wheat_seeds/semillas_de_trigo.Rmd",
+    "project_path" : "semillas_de_trigo.Rmd",
+    "properties" : {
+        "cursorPosition" : "1,0",
+        "scrollLine" : "12",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,6 @@
+"0","# Biblioteca para hacer la lectura del archivo."
+"0","library(readr)"
+"0","# Leyendo el CSV dándole la ruta relativa."
+"0","Data = read.csv(""../../data/seeds_dataset.csv"")"
+"0","# Visualizando el contenido del CSV."
+"0","View(Data)"

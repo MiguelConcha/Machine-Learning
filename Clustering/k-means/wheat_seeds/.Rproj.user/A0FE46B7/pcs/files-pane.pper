@@ -1,0 +1,9 @@
+{
+    "path" : "~/Proyecto_3_ML/k-means/wheat_seeds",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

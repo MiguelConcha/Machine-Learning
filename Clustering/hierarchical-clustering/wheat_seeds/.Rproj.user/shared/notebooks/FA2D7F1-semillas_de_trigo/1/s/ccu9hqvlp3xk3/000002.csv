@@ -1,0 +1,7 @@
+"0","# Tenemos una copia de los datos."
+"0","datos.caracteristicas = Data"
+"0","# A la copia le quitamos las columnas que no son de interés."
+"0","datos.caracteristicas$ID <- NULL"
+"0","datos.caracteristicas$seedType <- NULL"
+"0","# Vemos cómo quedaron los nuevos datos."
+"0","View(datos.caracteristicas)"

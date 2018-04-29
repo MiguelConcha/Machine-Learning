@@ -1,0 +1,3 @@
+"0","# Normalizando los datos y luego visualizándolos."
+"0","datos.escalados <- as.data.frame(scale(datos.caracteristicas))"
+"0","View(datos.escalados)"

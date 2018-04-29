@@ -1,0 +1,7 @@
+"0","# Almacenamos en un vector que contendrá las inercias inter-cluster cuando k = 1."
+"0","vector <- kmeans(datos.escalados, centers = 1)$betweenss"
+"0","# Ahora hacemos lo mismo, con una secuencia de valores para k, con k desde 2 hasta 15."
+"0","# Nótese que el número en el que nos detenemos podría también no ser el adecuado."
+"0","for(i in 2:15) vector[i] <- kmeans(datos.escalados, centers = i)$betweenss"
+"0","# Graficamos para tener una idea del k adeacuado."
+"0","plot(1:15, vector, type = ""b"", xlab = ""núm. clusters"", ylab = ""inercia inter-cluster"")"

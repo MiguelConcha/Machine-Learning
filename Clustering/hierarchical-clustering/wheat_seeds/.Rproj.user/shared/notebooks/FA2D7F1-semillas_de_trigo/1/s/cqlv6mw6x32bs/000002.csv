@@ -1,0 +1,2 @@
+"0","# Ejecución del algoritmo k-means con 3 clusters y guardando el resultado en la var. resultados."
+"0","resultados <- kmeans(datos.escalados, centers = 3)"

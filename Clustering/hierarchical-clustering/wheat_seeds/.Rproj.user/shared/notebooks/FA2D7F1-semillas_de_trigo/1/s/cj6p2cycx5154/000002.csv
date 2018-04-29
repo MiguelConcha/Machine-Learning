@@ -1,0 +1,2 @@
+"0","# Crenado la tabla con los promedios para cada categoría de observación."
+"0","aggregate(datos.caracteristicas, by = list(resultados$cluster), mean)"

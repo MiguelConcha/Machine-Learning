@@ -1,0 +1,2 @@
+"0","# Gráfica de acuerdo a la etiqueta de clase correcta (la original)."
+"0","plot(Data[c(""area"", ""perimeter"")], xlab = ""Área"", ylab = ""Perímetro"", col = Data$seedType)"
