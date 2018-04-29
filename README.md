@@ -12,5 +12,5 @@ Proyectos de la Materia de Reconocimiento de Patrones y Aprendizaje Automatizado
 ### Proyectos: 
 1. Clasificación de Documentos.
 2. Obtención de información a partir de imágenes.
-3. Reconocimiento de sentimientos en texto.
+3. <del>Reconocimiento de sentimientos en texto.</del> Clustering (__k-means__ y __jerárquico__) libre.
 4. Libre.
