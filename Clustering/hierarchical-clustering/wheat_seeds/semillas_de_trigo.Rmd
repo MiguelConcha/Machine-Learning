@@ -7,6 +7,30 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo=FALSE}
+# Haciendo el programa parametrizable con la entrada del usuario.
+# Nóteses que como el experimento fue hecho con parámetros muy específicos,
+# se le pregunta si quiere o no replicar el experimento.
+
+# El problema está en que de seguir con sus propios parámetros y luego querern
+# hacer el knit del archivo (al ser un Rmd), se generarán los comentarios
+# respectivos al experimento comentado en el reporte
+
+tamanio_etiquetas <- 0.1
+comparativa <- "y"
+reescalar <- "y"
+
+# Código para ver si se quiere parametrizar o no el programa con entrada en la consola.
+replicar_exp <- readline(prompt="Replicar el experimento (y/n): ")
+if (replicar_exp == "n" || replicar_exp == "no") {
+  s = readline(prompt="Parametrizando el experimento... ")
+  tamanio_etiquetas <- readline(prompt = "Tamaño de etiquetas para gráficas: ")
+  tamanio_etiquetas <- as.double(tamanio_etiquetas)
+  comparativa <- readline(prompt = "Llevar a cabo análisis comparativo (y/n)")
+  reescalar  <- readline(prompt = "Reescalar las características (y/n)")
+}
+
+```
 # Preparación de los datos
 
 ## Importando el CSV de los datos
@@ -50,6 +74,7 @@ En donde:
   * $s_i = max(s_i) - min(s_i)$ es el rango. Se puede usar la desviación estándar.
 
 ```{r}
+if (reescalar == "y" || reescalar == "yes") { 
 # Normalizando los datos y luego visualizándolos.
 
 # Obteniendo las medias de cada columna y guardándolas en un vector.
@@ -60,6 +85,7 @@ s <- apply(datos.caracteristicas, 2, sd)
 # Reesclando las características y luego visualizando cómo quedan.
 datos.escalados <- scale(datos.caracteristicas, m, s)
 View(datos.escalados)
+}
 ```
 
 ## Calculando las distancias euclidianas.
@@ -67,8 +93,12 @@ View(datos.escalados)
 Luego se procede a calcular las distancias existentes entre las observaciones (ejemplares) a partir de todas las características que exhiben en un espacio vectorial de dimensión menor o igual a la dimensión de las variables en el que podemos representar a los individuos por puntos.
 
 ```{r}
+if (reescalar == "y" || reescalar == "yes") {
 # Usando la función que ya proporciona R para calcular las distancias. 
 distancias <- dist(datos.escalados)
+}else{
+  distancias <- dist(datos.caracteristicas)
+}
 ```
 Lo que se encuentra almacenado en este momento en la variable __distancias__ es una matriz cuadrada de tamaño $n\times n$ en donde $n$ es el número de ejemplares u observaciones. En nuestro caso, es de 210 $\cdot$ 210. Sin embargo, las entradas de la diagonal superior son vacías (no son necesarias), pues la matriz es simétrica al ser la distancia de $A$ a $B$ la misma de que de $B$ a $A$, i.e la relación de distancia euclidiana entre puntos en un espacio vectorial es simétrica. Más aún, como la distancia de un punto a sí mismo es cero, entonces no se considera la diagonal.
 
@@ -98,7 +128,7 @@ Creamos ahora el dendograma luego de un clustering jerárquico aglomerativo con 
 # R proporciona y la función para llevar a cabo el algoritmo aglomerativo jerárquico.
 hc.c <- hclust(distancias)
 # Graficando luego de etiquetar los ejes y reducir el tamaño de las etiquetas de observaciones.
-plot(hc.c, xlab="Observaciones",ylab="Altura",main="Dendograma con Distancias máximas",sub="",cex = 0.1,hang = -1)
+plot(hc.c, xlab="Observaciones",ylab="Altura",main="Dendograma con Distancias máximas",sub="",cex = tamanio_etiquetas,hang = -1)
 ```
 
 Tenemos en este caso muchas observaciones (210), pero podríamos tener un peor panorama. La complejidad del algoritmo de agrupamiento aglomerativo es del orden en tiempo $\mathcal{O}(n^3)$ con $n$ el número de datos. En este caso, se necesitaron ocho iteraciones para que todas observaciones confluyeran en un solo cluster. 
@@ -109,7 +139,7 @@ Tenemos en este caso muchas observaciones (210), pero podríamos tener un peor p
 # R proporciona y la función para llevar a cabo el algoritmo aglomerativo jerárquico.
 hc.a <- hclust(distancias, method = "average")
 # Graficando luego de etiquetar los ejes y reducir el tamaño de las etiquetas de observaciones.
-plot(hc.a,xlab="Observaciones",ylab="Altura",main="Dendograma con Distancias máximas",sub="",cex = 0.1,hang = -1)
+plot(hc.a,xlab="Observaciones",ylab="Altura",main="Dendograma con Distancias máximas",sub="",cex = tamanio_etiquetas,hang = -1)
 ```
 
 Podemos ver que la creación de los clusters usando la estrategia de distnacias ponderadas fue similar, pero terminó antes el agrupamiento.
@@ -121,11 +151,13 @@ Podemos ver que la creación de los clusters usando la estrategia de distnacias 
 Conviene entonces hacer un análisis cuantitativo de qué técnica de clustering jerárquico nos conviene más, sabiendo ya de antemano que en este caso y para este problema nos conviene tener tres clusters (pues hay tres clases distintas de semillas de trigo) como ya discutimos en la parte de __k-means__ tras graficar las incercias inter-cluster.
 
 ```{r}
+if (comparativa == "y" || comparativa == "yes") {
 # viendo cómo se agrupan en 3 cluster con cada técnica.
 distancias_maximas <- cutree(hc.c, 3)
 similitud_ponderada <- cutree(hc.a, 3)
 # Tabla comparativa.
 table(distancias_maximas, similitud_ponderada)
+}
 ```
 
 Esto nos indica que hubo:
@@ -160,7 +192,7 @@ A continuación vamos a usarla con el cuadrado de las distancias obtenidas antes
 
 # Este método (dado por la función de R) ya eleva las distancias al cuadrado.
 hc.w <- hclust(distancias, method = "ward.D2")
-plot(hc.w, xlab="Observaciones",ylab="Altura",main="Dendograma con Ward",sub="",cex = 0.1,hang = -1)
+plot(hc.w, xlab="Observaciones",ylab="Altura",main="Dendograma con Ward",sub="",cex = tamanio_etiquetas,hang = -1)
 ```
 
 Notemos que le tomó más tiempo encontrar el cluster que agrupa a todas las observaciones, pero los clusters se ven miu bien delimitados.
@@ -168,10 +200,12 @@ Notemos que le tomó más tiempo encontrar el cluster que agrupa a todas las obs
 ### Comparativa con Distancias Máximas
 
 ```{r}
+if (comparativa == "y" || comparativa == "yes") {
 # Obtenemos cómo argupa en tres clusters con Ward.
 ward <- cutree(hc.w, 3)
 # Tabla comparativa con distancias máximas.
 table(distancias_maximas, ward)
+}
 ```
 
 De acuerdo con la tabla comparativa:
@@ -185,8 +219,10 @@ Esto nos indica que si bien el primer y tercer cluster siguen causando el mayor 
 ### Comparativa con Similitud Ponderada
 
 ```{r}
+if (comparativa == "y" || comparativa == "yes") {
 # Tabla comparativa con similitud ponderada.
 table(similitud_ponderada, ward)
+}
 ```
 
 Se obtuvieron los siguientes resultados en la comparativa:
@@ -197,4 +233,4 @@ Se obtuvieron los siguientes resultados en la comparativa:
   * 8 observaciones fueron consideradas por Ward dentro del primer vluster y por similitud ponderada dentro del segundo cluster.
   * Hubo otro desajuste entre ambas técnicas de ocho observaciones que fueron consideradas por Ward dentro del primer cluster y por similitud ponderada dentro del tercero.
   
-En etse caso sí hubo un resultado comparativo distinto, pues hubo un menor desajuste entre ambas ténicas en cuando a la diferenciación de las observaciones consideradas para el primero y tercer clusters.
+En este caso sí hubo un resultado comparativo distinto, pues hubo un menor desajuste entre ambas ténicas en cuando a la diferenciación de las observaciones consideradas para el primero y tercer clusters.

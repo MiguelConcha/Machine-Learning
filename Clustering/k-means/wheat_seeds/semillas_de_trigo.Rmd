@@ -7,6 +7,38 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo=FALSE}
+# Haciendo el programa parametrizable con la entrada del usuario.
+# Nóteses que como el experimento fue hecho con parámetros muy específicos,
+# se le pregunta si quiere o no replicar el experimento.
+
+# El problema está en que de seguir con sus propios parámetros y luego querern
+# hacer el knit del archivo (al ser un Rmd), se generarán los comentarios
+# respectivos al experimento comentado en el reporte
+
+comparativa <- "y"
+reescalar <- "y"
+semilla <- 80  # Preferimos que en ésto sí se tenga que cambiar manualmente por comportamiento indefinido que pueda tenerse.
+k_inicial <- 3
+algoritmo <- "Hartigan-Wong" # Por defecto
+
+# Código para ver si se quiere parametrizar o no el programa con entrada en la consola.
+replicar_exp <- readline(prompt="Replicar el experimento (y/n): ")
+if (replicar_exp == "n" || replicar_exp == "no") {
+  print("Procedemos a parametrizar el experimento...")
+  comparativa <- readline(prompt = "Llevar a cabo análisis comparativo (y/n)")
+  reescalar  <- readline(prompt = "Reescalar las características (y/n)")
+  k_inicial <- readline(prompt = "Número de clusters: ")
+  k_inicial <- as.integer(k_inicial)
+  print("Los posible algoritmos son: ")
+  print("Hartigan-Wong")
+  print("Lloyd")
+  print("Forgy (igual que Lloyd)")
+  print("MacQueen")
+  algoritmo <- readline(prompt = "¿Qué algoritmo quieres? (cadena): ")
+}
+```
+
 # Preparación de los datos
 
 ## Importando el CSV de los datos
@@ -41,9 +73,13 @@ View(datos.caracteristicas)
 Con tal de evitar que algunas características de las semillas de trigo tengan más importancia que otras —por ejemplo, el área y el perímetro tienen valores considerablemente mayores a los de los coeficientes de asimetría—, procedemos a normalizar los valores.
 
 ```{r}
+if (reescalar == "y" || reescalar == "yes") {
 # Normalizando los datos y luego visualizándolos.
 datos.escalados <- as.data.frame(scale(datos.caracteristicas))
 View(datos.escalados)
+}else {
+  datos.escalados <- datos.caracteristicas
+}
 ```
 
 # Creación de clusters
@@ -54,7 +90,7 @@ Como estudiamos, el algoritmo de __k-means__ tiene una componente aleatoria en c
 
 ```{r}
 # Fijando la semilla de aleatoriedad.
-set.seed(80)
+set.seed(semilla)
 ```
 
 ## Espeficificación de los clusters
@@ -65,7 +101,7 @@ Sin embargo, posteriormente evaluaremos una forma de aproximar adecuadamente el 
 
 ```{r}
 # Ejecución del algoritmo k-means con 3 clusters y guardando el resultado en la var. resultados.
-resultados <- kmeans(datos.escalados, centers = 3)
+resultados <- kmeans(datos.escalados, centers = k_inicial, algorithm = algoritmo)
 ```
 
 ### Obteniendo información de los clusters creados
@@ -113,7 +149,7 @@ De esta gráfica podemos ver que el número de clusters logra estabilizarse apro
 Para cada uno de los clusters que fueron conformados, podemos ver cuál es el valor promedio para cada una de las observaciones originales:
 
 ```{r}
-# Crenado la tabla con los promedios para cada categoría de observación.
+# Creando la tabla con los promedios para cada categoría de observación.
 aggregate(datos.caracteristicas, by = list(resultados$cluster), mean)
 ```
 ## Comparativa con tipos de semilla reales
@@ -132,7 +168,7 @@ Podemos ver que de los setenta ejemplares de semilla que se tenían, la amplia m
 
 Lo que nos indica la tabla anterior es:
 
-  1. El primer tipo de semillas tuvo un total de $2 + 6 = 8$ agrupamientos incorrectos, pero un total de sesenta y dos semillas fueron todas argupadas en el segundo cluster.
+  1. El primer tipo de semillas tuvo un total de $2 + 6 = 8$ agrupamientos incorrectos, pero un total de sesenta y dos semillas fueron todas agrupadas en el segundo cluster.
   2. Para el segundo tipo de semilla, no hubo ninguna que fuera colocada en el tercer cluster, pero hubo un total de cinco semillas incorrectamente colocadas en el segundo cluster y el resto en el primer cluster.
   3. En el caso del tercer tipo de semilla de trigo, no hubo ninguna que fuera colocada en el primer cluster. Seseinta y seis de ellas se identificaron como del tercer cluster, mientras que las cuatro restantes fueron identificadas como pertenecientes al segundo cluster.
   
@@ -145,11 +181,13 @@ Lo que nos indica la tabla anterior es:
 Vamos a comparar el área y el perímetro de las semillas originales y ver una comparativa con la misma gráfica con los clusters obtenidos.
 
 ```{r}
+if (comparativa == "y" || comparativa == "yes") {
 # Gráfica de acuerdo a la etiqueta de clase correcta (la original).
 plot(Data[c("area", "perimeter")], xlab = "Área", ylab = "Perímetro", col = Data$seedType)
 
 # Gráfica de acuerdo al agrupamiento por clusters.
 plot(Data[c("area", "perimeter")], xlab = "Área", ylab = "Perímetro", col = resultados$cluster)
+}
 ```
 
 Podemos ver que los agrupamientos son muy parecidos (Los colores son distintos por motivos de cómo se toman en **R**). 
@@ -157,11 +195,13 @@ Podemos ver que los agrupamientos son muy parecidos (Los colores son distintos p
 Ahora hagamos la misma comparativa con respecto al ancho y longitud de los núcleos d elas semillas de trigo:
 
 ```{r}
+if (comparativa == "y" || comparativa == "yes") {
 # Gráfica de acuerdo a la etiqueta de clase correcta (la original).
 plot(Data[c("widthOfKernel", "lengthOfKernel")], xlab = "Ancho del núcleo", ylab = "Longitud del núcleo", col = Data$seedType)
 
 # Gráfica de acuerdo al agrupamiento por clusters.
 plot(Data[c("widthOfKernel", "lengthOfKernel")], xlab = "Ancho del núcleo", ylab = "Longitud del núcleo", col = resultados$cluster)
+}
 ```
 
 De nueva cuenta podemos ver que los agupamientos por cluster se aproximaron bien a las clases originales.
