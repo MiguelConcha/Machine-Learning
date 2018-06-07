@@ -190,7 +190,7 @@ shinyServer(
               col = rainbow(50),
               ylab = 'Num. Apariciones',
               xlab = 'Palabra',
-              cex.names = 0.5)})
+              cex.names = as.numeric(input$tam_etiquetas))})
     })
     # Caso para cuando se quiere crear nube de palabras.
     # Cuando el usuario selecciona personalmente el archivo.

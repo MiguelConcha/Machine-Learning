@@ -19,7 +19,7 @@ shinyUI(
                                          textInput("otroHashtag", "Escribe el hashtag que te interesa")),
                        # Especificando el num. de tweets a recabar. 
                        sliderInput("numTweets", "Selecciona el numero de tweets a recabar: ",
-                                    min = 100, max = 5000, value = 1000, step = 100),
+                                    min = 1000, max = 5000, value = 1000, step = 100),
                        # Desde que fecha considerarlos. 
                        dateInput("fecha", "Fecha desde la cual tomar los tweets:",
                                        "2017-12-14"),
@@ -51,6 +51,9 @@ shinyUI(
                        # Min. de apariciones de las palabras a considerar en la nube.
                        sliderInput("min_apariciones", "Selecciona el min. de apariciones a partir del cual considerar",
                                    min = 25, max = 100, value = 30, step = 1),
+                       # Dimensiones de las etiquetas de las palabras en la grafica.
+                       sliderInput("tam_etiquetas", "Dimensiones de las etiquetas para palabras",
+                                   min = 0.1, max = 1, value = 0.25, step = 0.01),
                        # Boton para iniciar la accion en caso de indicar la ruta personalmente.
                        conditionalPanel(condition = "input.ruta_t == 'Seleccionarla yo mismo'",
                                         actionButton("seleccion_t", "Seleccionar archivo .csv y analizar", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
