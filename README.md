@@ -13,4 +13,4 @@ Proyectos de la Materia de Reconocimiento de Patrones y Aprendizaje Automatizado
 1. Clasificación de Documentos.
 2. Obtención de información a partir de imágenes.
 3. <del>Reconocimiento de sentimientos en texto.</del> Clustering (__k-means__ y __jerárquico__) libre.
-4. Libre.
+4. Libre -> Análisis de Sentimientos, minería de textos y de opinión, clustering en tweets electorales (México 2018).
